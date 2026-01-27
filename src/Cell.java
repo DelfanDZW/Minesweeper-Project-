@@ -3,14 +3,14 @@ public class Cell {
     private int value;
 
     public Cell(int value) {
-        this.value = value; // Inisialisasi nilai sel
+        this.value = value; 
     }
 
     public int getValue() {
-        return value; // Mengembalikan nilai sel
+        return value; 
     }
 
     public void setValue(int value) {
-        this.value = value; // Mengatur nilai sel
+        this.value = value; 
     }
 }
