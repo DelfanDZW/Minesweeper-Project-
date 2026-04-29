@@ -1,6 +1,6 @@
 ## MineSweeper Using Java 23.0.2
 
-This project was my pass college minesweeper project when i learned coding. The code still in rought condition because it just small project
+This project was my pass college minesweeper project when i learned coding in first semester. The code still in rought condition because it just small project
 
 ## Dependency Management
 
