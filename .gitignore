@@ -19,3 +19,6 @@
 
 # VS Code directory (optional, but good practice to ignore personal IDE settings)
 .vscode/
+
+# JPackage output
+dist/

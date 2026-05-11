@@ -57,8 +57,14 @@ public class GamePanel extends JPanel {
 
         // load image to array array
         for (int i = 0; i < NUM_IMAGES; i++) {
-            var path = "src/Mineimg/" + i + ".png"; 
-            img[i] = (new ImageIcon(path)).getImage(); 
+            var url = getClass().getResource("/Mineimg/" + i + ".png");
+            if (url != null) {
+                img[i] = (new ImageIcon(url)).getImage();
+            } else {
+                // Fallback to file path for development
+                var path = "src/Mineimg/" + i + ".png"; 
+                img[i] = (new ImageIcon(path)).getImage(); 
+            }
         }
 
         playAgainButton = new JButton("Play Again");
