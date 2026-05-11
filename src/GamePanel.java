@@ -18,11 +18,12 @@ public class GamePanel extends JPanel {
     private final int DRAW_COVER = 10;
     private final int DRAW_MARK = 11; 
     private final int DRAW_WRONG_MARK = 12; 
-    private final int N_MINES = 40;
-    private final int N_ROWS = 16; 
-    private final int N_COLS = 16; 
-    private final int BOARD_WIDTH = N_COLS * CELL_SIZE + 1; 
-    private final int BOARD_HEIGHT = N_ROWS * CELL_SIZE + 1; 
+
+    private int nMines = 40;
+    private int nRows = 16; 
+    private int nCols = 16; 
+    private int boardWidth = nCols * CELL_SIZE + 1; 
+    private int boardHeight = nRows * CELL_SIZE + 1; 
     private int[] field; 
     private boolean inGame; 
     private int minesLeft; 
@@ -51,7 +52,7 @@ public class GamePanel extends JPanel {
 
 
     private void initBoard() {
-        setPreferredSize(new Dimension(BOARD_WIDTH, BOARD_HEIGHT)); 
+        setPreferredSize(new Dimension(boardWidth, boardHeight)); 
         img = new Image[NUM_IMAGES];
 
         // load image to array array
@@ -61,7 +62,7 @@ public class GamePanel extends JPanel {
         }
 
         playAgainButton = new JButton("Play Again");
-        playAgainButton.setBounds((BOARD_WIDTH / 2) - 50, (BOARD_HEIGHT / 2) - 15, 100, 30); 
+        playAgainButton.setBounds((boardWidth / 2) - 50, (boardHeight / 2) - 15, 100, 30); 
         playAgainButton.setVisible(false); 
         playAgainButton.addActionListener(new ActionListener() {
             @Override
@@ -76,14 +77,33 @@ public class GamePanel extends JPanel {
         newGame();
     }
 
+    public void setDifficulty(int rows, int cols, int mines) {
+        this.nRows = rows;
+        this.nCols = cols;
+        this.nMines = mines;
+        this.boardWidth = nCols * CELL_SIZE + 1;
+        this.boardHeight = nRows * CELL_SIZE + 1;
+        setPreferredSize(new Dimension(boardWidth, boardHeight));
+        newGame();
+
+        // Notify the parent window to resize
+        SwingUtilities.invokeLater(() -> {
+            Window window = SwingUtilities.getWindowAncestor(this);
+            if (window != null) {
+                window.pack();
+                window.setLocationRelativeTo(null);
+            }
+        });
+    }
+
     public void newGame() {
         int cell;
 
         firstClick = true; 
         var random = new Random(); 
         inGame = true; 
-        minesLeft = N_MINES; 
-        allCells = N_ROWS * N_COLS; 
+        minesLeft = nMines; 
+        allCells = nRows * nCols; 
         field = new int[allCells];
 
         for (int i = 0; i < allCells; i++) {
@@ -94,16 +114,16 @@ public class GamePanel extends JPanel {
 
         int i = 0;
 
-        while (i < N_MINES) {
+        while (i < nMines) {
             int position = (int) (allCells * random.nextDouble()); 
 
             if ((position < allCells) && (field[position] != COVERED_MINE_CELL)) {
-                int current_col = position % N_COLS;
+                int current_col = position % nCols;
                 field[position] = COVERED_MINE_CELL;
                 i++;
 
                 if (current_col > 0) {
-                    cell = position - 1 - N_COLS;
+                    cell = position - 1 - nCols;
                     if (cell >= 0) {
                         if (field[cell] != COVERED_MINE_CELL) {
                             field[cell] += 1;
@@ -116,7 +136,7 @@ public class GamePanel extends JPanel {
                         }
                     }
 
-                    cell = position + N_COLS - 1;
+                    cell = position + nCols - 1;
                     if (cell < allCells) {
                         if (field[cell] != COVERED_MINE_CELL) {
                             field[cell] += 1;
@@ -124,28 +144,28 @@ public class GamePanel extends JPanel {
                     }
                 }
 
-                cell = position - N_COLS;
+                cell = position - nCols;
                 if (cell >= 0) {
                     if (field[cell] != COVERED_MINE_CELL) {
                         field[cell] += 1;
                     }
                 }
 
-                cell = position + N_COLS;
+                cell = position + nCols;
                 if (cell < allCells) {
                     if (field[cell] != COVERED_MINE_CELL) {
                         field[cell] += 1;
                     }
                 }
 
-                if (current_col < (N_COLS - 1)) {
-                    cell = position - N_COLS + 1;
+                if (current_col < (nCols - 1)) {
+                    cell = position - nCols + 1;
                     if (cell >= 0) {
                         if (field[cell] != COVERED_MINE_CELL) {
                             field[cell] += 1;
                         }
                     }
-                    cell = position + N_COLS + 1;
+                    cell = position + nCols + 1;
                     if (cell < allCells) {
                         if (field[cell] != COVERED_MINE_CELL) {
                             field[cell] += 1;
@@ -161,16 +181,19 @@ public class GamePanel extends JPanel {
             }
         }
 
-        repaint(); 
+        // Reposition play again button for new board size
+        playAgainButton.setBounds((boardWidth / 2) - 50, (boardHeight / 2) - 15, 100, 30);
         playAgainButton.setVisible(false); 
+
+        repaint(); 
     }
 
     public void find_empty_cells(int j) {
-        int current_col = j % N_COLS;
+        int current_col = j % nCols;
         int cell;
 
         if (current_col > 0) {
-            cell = j - N_COLS - 1;
+            cell = j - nCols - 1;
             if (cell >= 0) {
                 if (field[cell] > MINE_CELL) {
                     field[cell] -= COVER_FOR_CELL;
@@ -192,7 +215,7 @@ public class GamePanel extends JPanel {
                 }
             }
 
-            cell = j + N_COLS - 1;
+            cell = j + nCols - 1;
             if (cell < allCells) {
                 if (field[cell] > MINE_CELL) {
                     field[cell] -= COVER_FOR_CELL;
@@ -204,7 +227,7 @@ public class GamePanel extends JPanel {
             }
         }
 
-        cell = j - N_COLS;
+        cell = j - nCols;
         if (cell >= 0) {
             if (field[cell] > MINE_CELL) {
                 field[cell] -= COVER_FOR_CELL;
@@ -215,7 +238,7 @@ public class GamePanel extends JPanel {
             }
         }
 
-        cell = j + N_COLS;
+        cell = j + nCols;
         if (cell < allCells) {
             if (field[cell] > MINE_CELL) {
                 field[cell] -= COVER_FOR_CELL;
@@ -226,8 +249,8 @@ public class GamePanel extends JPanel {
             }
         }
 
-        if (current_col < (N_COLS - 1)) {
-            cell = j - N_COLS + 1;
+        if (current_col < (nCols - 1)) {
+            cell = j - nCols + 1;
             if (cell >= 0) {
                 if (field[cell] > MINE_CELL) {
                     field[cell] -= COVER_FOR_CELL;
@@ -238,7 +261,7 @@ public class GamePanel extends JPanel {
                 }
             }
 
-            cell = j + N_COLS + 1;
+            cell = j + nCols + 1;
             if (cell < allCells) {
                 if (field[cell] > MINE_CELL) {
                     field[cell] -= COVER_FOR_CELL;
@@ -265,10 +288,10 @@ public class GamePanel extends JPanel {
     public void paintComponent(Graphics g) {
         int uncover = 0;
 
-        for (int i = 0; i < N_ROWS; i++) {
-            for (int j = 0; j < N_COLS; j++) {
+        for (int i = 0; i < nRows; i++) {
+            for (int j = 0; j < nCols; j++) {
 
-                int cell = field[(i * N_COLS) + j];
+                int cell = field[(i * nCols) + j];
 
                 if (inGame && cell == MINE_CELL) {
                     inGame = false;
@@ -321,11 +344,11 @@ public class GamePanel extends JPanel {
     }
 
     public int getNCols() {
-        return N_COLS;
+        return nCols;
     }
 
     public int getNRows() {
-        return N_ROWS;
+        return nRows;
     }
 
     public boolean isInGame() {
