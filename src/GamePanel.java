@@ -57,12 +57,12 @@ public class GamePanel extends JPanel {
 
         // load image to array array
         for (int i = 0; i < NUM_IMAGES; i++) {
-            var url = getClass().getResource("/Mineimg/" + i + ".png");
+            java.net.URL url = getClass().getResource("/Mineimg/" + i + ".png");
             if (url != null) {
                 img[i] = (new ImageIcon(url)).getImage();
             } else {
                 // Fallback to file path for development
-                var path = "src/Mineimg/" + i + ".png"; 
+                String path = "src/Mineimg/" + i + ".png"; 
                 img[i] = (new ImageIcon(path)).getImage(); 
             }
         }
@@ -106,7 +106,7 @@ public class GamePanel extends JPanel {
         int cell;
 
         firstClick = true; 
-        var random = new Random(); 
+        Random random = new Random(); 
         inGame = true; 
         minesLeft = nMines; 
         allCells = nRows * nCols; 
