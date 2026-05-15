@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class GamePanel extends JPanel {
 
-    private final int NUM_IMAGES = 13; 
+    private final int NUM_IMAGES = 12; 
     private final int CELL_SIZE = 32; 
     private final int COVER_FOR_CELL = 10; 
     private final int MARK_FOR_CELL = 10; 
@@ -17,7 +17,6 @@ public class GamePanel extends JPanel {
     private final int DRAW_MINE = 9; 
     private final int DRAW_COVER = 10;
     private final int DRAW_MARK = 11; 
-    private final int DRAW_WRONG_MARK = 12; 
 
     private int nMines = 40;
     private int nRows = 16; 
@@ -309,7 +308,7 @@ public class GamePanel extends JPanel {
                     } else if (cell == MARKED_MINE_CELL) {
                         cell = DRAW_MARK;
                     } else if (cell > COVERED_MINE_CELL) {
-                        cell = DRAW_WRONG_MARK;
+                        cell = DRAW_MARK;
                     } else if (cell > MINE_CELL) {
                         cell = DRAW_COVER;
                     }
