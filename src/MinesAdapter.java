@@ -43,31 +43,27 @@ public class MinesAdapter extends MouseAdapter {
                     }
                 }
             } else {
-                System.out.println(gamePanel.isFirstClick());
                 if (gamePanel.getField()[(cRow * gamePanel.getNCols()) + cCol] > gamePanel.getCoveredMineCell()) {
                     return;
                 }
 
                 if ((gamePanel.getField()[(cRow * gamePanel.getNCols()) + cCol] > gamePanel.getMineCell()) &&
                         (gamePanel.getField()[(cRow * gamePanel.getNCols()) + cCol] < gamePanel.getMarkedMineCell())) {
+                    
+                    if (gamePanel.isFirstClick()) {
+                        gamePanel.setFirstClick(false);
+                        gamePanel.generateMines((cRow * gamePanel.getNCols()) + cCol);
+                    }
+
                     gamePanel.getField()[(cRow * gamePanel.getNCols()) + cCol] -= gamePanel.getCoverForCell();
                     doRepaint = true;
 
                     if (gamePanel.getField()[(cRow * gamePanel.getNCols()) + cCol] == gamePanel.getMineCell()) {
                         gamePanel.setInGame(false);
-                        if (gamePanel.isFirstClick()) {
-                            gamePanel.newGame();
-                            gamePanel.repaint();
-                            gamePanel.getField()[(cRow * gamePanel.getNCols()) + cCol] -= gamePanel.getCoverForCell();
-                            doRepaint = true;
-                        }
                     }
 
                     if (gamePanel.getField()[(cRow * gamePanel.getNCols()) + cCol] == gamePanel.getEmptyCell()) {
                         gamePanel.find_empty_cells((cRow * gamePanel.getNCols()) + cCol);
-                    }
-                    if (gamePanel.isFirstClick()) {
-                        gamePanel.setFirstClick(false);
                     }
                 }
             }

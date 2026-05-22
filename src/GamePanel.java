@@ -117,12 +117,22 @@ public class GamePanel extends JPanel {
 
         status.setText(Integer.toString(minesLeft)); 
 
+        // Reposition play again button for new board size
+        playAgainButton.setBounds((boardWidth / 2) - 50, (boardHeight / 2) - 15, 100, 30);
+        playAgainButton.setVisible(false); 
+
+        repaint(); 
+    }
+
+    public void generateMines(int excludeCell) {
+        int cell;
+        Random random = new Random();
         int i = 0;
 
         while (i < nMines) {
             int position = (int) (allCells * random.nextDouble()); 
 
-            if ((position < allCells) && (field[position] != COVERED_MINE_CELL)) {
+            if ((position < allCells) && (field[position] != COVERED_MINE_CELL) && (position != excludeCell)) {
                 int current_col = position % nCols;
                 field[position] = COVERED_MINE_CELL;
                 i++;
@@ -185,12 +195,6 @@ public class GamePanel extends JPanel {
                 }
             }
         }
-
-        // Reposition play again button for new board size
-        playAgainButton.setBounds((boardWidth / 2) - 50, (boardHeight / 2) - 15, 100, 30);
-        playAgainButton.setVisible(false); 
-
-        repaint(); 
     }
 
     public void find_empty_cells(int j) {
