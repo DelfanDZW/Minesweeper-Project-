@@ -1,6 +1,8 @@
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -8,6 +10,8 @@ import javax.swing.JMenuItem;
 public class Minesweeper extends JFrame {
 
     private JLabel status;
+    private JLabel timerLabel;
+    private JButton resetBtn;
     private GamePanel gamePanel;
 
     public Minesweeper() {
@@ -15,10 +19,45 @@ public class Minesweeper extends JFrame {
     }
 
     private void initUI() {
-        status = new JLabel("");
-        add(status, BorderLayout.SOUTH);
+        JPanel topPanel = new JPanel(new java.awt.BorderLayout());
+        topPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        topPanel.setBackground(java.awt.Color.LIGHT_GRAY);
 
-        gamePanel = new GamePanel(status);
+        status = new JLabel("000");
+        status.setFont(new java.awt.Font("Monospaced", java.awt.Font.BOLD, 24));
+        status.setForeground(java.awt.Color.RED);
+        status.setBackground(java.awt.Color.BLACK);
+        status.setOpaque(true);
+        status.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
+
+        timerLabel = new JLabel("000");
+        timerLabel.setFont(new java.awt.Font("Monospaced", java.awt.Font.BOLD, 24));
+        timerLabel.setForeground(java.awt.Color.RED);
+        timerLabel.setBackground(java.awt.Color.BLACK);
+        timerLabel.setOpaque(true);
+        timerLabel.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
+
+        resetBtn = new JButton("😊");
+        resetBtn.setFont(new java.awt.Font("Segoe UI Emoji", java.awt.Font.PLAIN, 20));
+        resetBtn.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        resetBtn.setFocusPainted(false);
+        resetBtn.setPreferredSize(new java.awt.Dimension(40, 40));
+        resetBtn.addActionListener(e -> {
+            gamePanel.newGame();
+            gamePanel.repaint();
+        });
+
+        JPanel centerBtnPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 0));
+        centerBtnPanel.setBackground(java.awt.Color.LIGHT_GRAY);
+        centerBtnPanel.add(resetBtn);
+
+        topPanel.add(status, java.awt.BorderLayout.WEST);
+        topPanel.add(centerBtnPanel, java.awt.BorderLayout.CENTER);
+        topPanel.add(timerLabel, java.awt.BorderLayout.EAST);
+
+        add(topPanel, java.awt.BorderLayout.NORTH);
+
+        gamePanel = new GamePanel(status, timerLabel, resetBtn);
         add(gamePanel);
 
         createMenuBar();

@@ -29,8 +29,11 @@ public class GamePanel extends JPanel {
     private Image[] img; 
     private int allCells; 
     private final JLabel status;
+    private final JLabel timerLabel;
+    private final JButton resetBtn;
+    private Timer timer;
+    private int secondsElapsed;
     private boolean firstClick = true;
-    private JButton playAgainButton; 
 
     // Getter and setter for firstClick
     public boolean isFirstClick() {
@@ -43,9 +46,18 @@ public class GamePanel extends JPanel {
 
     private final Font statusFont = new Font("Arial", Font.BOLD, 18);
 
-    public GamePanel(JLabel status) {
+    public GamePanel(JLabel status, JLabel timerLabel, JButton resetBtn) {
         this.status = status;
-        this.status.setFont(statusFont);
+        this.timerLabel = timerLabel;
+        this.resetBtn = resetBtn;
+        
+        timer = new Timer(1000, e -> {
+            secondsElapsed++;
+            if (secondsElapsed <= 999) {
+                timerLabel.setText(String.format("%03d", secondsElapsed));
+            }
+        });
+
         initBoard(); 
     }
 
@@ -66,18 +78,7 @@ public class GamePanel extends JPanel {
             }
         }
 
-        playAgainButton = new JButton("Play Again");
-        playAgainButton.setBounds((boardWidth / 2) - 50, (boardHeight / 2) - 15, 100, 30); 
-        playAgainButton.setVisible(false); 
-        playAgainButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                newGame();
-            }
-        });
         setLayout(null); 
-        add(playAgainButton); 
-
         addMouseListener(new MinesAdapter(this)); 
         newGame();
     }
@@ -104,8 +105,12 @@ public class GamePanel extends JPanel {
     public void newGame() {
         int cell;
 
+        timer.stop();
+        secondsElapsed = 0;
+        timerLabel.setText("000");
+        resetBtn.setText("😊");
+
         firstClick = true; 
-        Random random = new Random(); 
         inGame = true; 
         minesLeft = nMines; 
         allCells = nRows * nCols; 
@@ -115,13 +120,12 @@ public class GamePanel extends JPanel {
             field[i] = COVER_FOR_CELL;
         }
 
-        status.setText(Integer.toString(minesLeft)); 
-
-        // Reposition play again button for new board size
-        playAgainButton.setBounds((boardWidth / 2) - 50, (boardHeight / 2) - 15, 100, 30);
-        playAgainButton.setVisible(false); 
-
+        status.setText(String.format("%03d", minesLeft)); 
         repaint(); 
+    }
+
+    public void startTimer() {
+        timer.start();
     }
 
     public void generateMines(int excludeCell) {
@@ -294,6 +298,55 @@ public class GamePanel extends JPanel {
         }
     }
 
+    public void doChording(int j) {
+        int current_col = j % nCols;
+        int cell;
+        int flagCount = 0;
+
+        if (current_col > 0) {
+            cell = j - nCols - 1; if (cell >= 0 && field[cell] >= MARKED_MINE_CELL) flagCount++;
+            cell = j - 1;         if (cell >= 0 && field[cell] >= MARKED_MINE_CELL) flagCount++;
+            cell = j + nCols - 1; if (cell < allCells && field[cell] >= MARKED_MINE_CELL) flagCount++;
+        }
+        cell = j - nCols; if (cell >= 0 && field[cell] >= MARKED_MINE_CELL) flagCount++;
+        cell = j + nCols; if (cell < allCells && field[cell] >= MARKED_MINE_CELL) flagCount++;
+        if (current_col < (nCols - 1)) {
+            cell = j - nCols + 1; if (cell >= 0 && field[cell] >= MARKED_MINE_CELL) flagCount++;
+            cell = j + nCols + 1; if (cell < allCells && field[cell] >= MARKED_MINE_CELL) flagCount++;
+            cell = j + 1;         if (cell < allCells && field[cell] >= MARKED_MINE_CELL) flagCount++;
+        }
+
+        if (flagCount == field[j]) {
+            int[] cellsToCheck = new int[8];
+            int count = 0;
+            if (current_col > 0) {
+                cell = j - nCols - 1; if (cell >= 0) cellsToCheck[count++] = cell;
+                cell = j - 1;         if (cell >= 0) cellsToCheck[count++] = cell;
+                cell = j + nCols - 1; if (cell < allCells) cellsToCheck[count++] = cell;
+            }
+            cell = j - nCols; if (cell >= 0) cellsToCheck[count++] = cell;
+            cell = j + nCols; if (cell < allCells) cellsToCheck[count++] = cell;
+            if (current_col < (nCols - 1)) {
+                cell = j - nCols + 1; if (cell >= 0) cellsToCheck[count++] = cell;
+                cell = j + nCols + 1; if (cell < allCells) cellsToCheck[count++] = cell;
+                cell = j + 1;         if (cell < allCells) cellsToCheck[count++] = cell;
+            }
+
+            for (int i = 0; i < count; i++) {
+                cell = cellsToCheck[i];
+                if (field[cell] > MINE_CELL && field[cell] < MARKED_MINE_CELL) {
+                    field[cell] -= COVER_FOR_CELL;
+                    if (field[cell] == MINE_CELL) {
+                        inGame = false;
+                    }
+                    if (field[cell] == EMPTY_CELL) {
+                        find_empty_cells(cell);
+                    }
+                }
+            }
+        }
+    }
+
     public void paintComponent(Graphics g) {
         int uncover = 0;
 
@@ -332,16 +385,21 @@ public class GamePanel extends JPanel {
 
         if (uncover == 0 && inGame) {
             inGame = false;
-            status.setText("Game won");
-            playAgainButton.setVisible(true);
+            timer.stop();
+            resetBtn.setText("😎");
         } else if (!inGame) {
-            status.setText("Game lost");
-            playAgainButton.setVisible(true);
+            timer.stop();
+            resetBtn.setText("😵");
         }
     }
 
     public void updateStatus(String message) {
-        status.setText(message);
+        try {
+            int mines = Integer.parseInt(message);
+            status.setText(String.format("%03d", mines));
+        } catch (NumberFormatException e) {
+            status.setText("000");
+        }
     }
 
     public int[] getField() {
